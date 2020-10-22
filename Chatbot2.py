@@ -157,4 +157,38 @@ answer = Dense(vocab_size)(answer)
 answer = Activation('softmax')(answer)
 model = Model([input_sequence,question],answer)
 model.compile(optimizer ='rmsprop',loss= 'categorical_crossentropy',metrics = ['accuracy'])
-print(model.summary())
+
+#FITTING AND TRAINING MODEL
+history = model.fit([inputs_train,queries_train],answers_train,batch_size=32,epochs=3,validation_data=([inputs_test,queries_test],answers_test))
+
+#training model
+model.load_weights('chatbot_10.5')
+pred_results= model.predict(([inputs_test,queries_test]))
+
+#the predicted answers to the questions
+val_max = np.argmax(pred_results[0])
+
+#indexed items
+for key,val in tokenizer.word_index.items():
+    if val == val_max:
+        k = key
+
+#handles inputs for questions
+#Only handles words and questions within the vocabulary
+
+my_story = "John left the kitchen . Sandra dropped the football in the garden . "
+
+my_question  = "is the football in the garden ?"
+mydata = [(my_story.split(),my_question.split(),'yes')]
+
+#everything vectorized seperately
+my_story, my_ques, my_ans = vectorize_stories(mydata)
+
+#Final output(myans) of my inputs (mystory,myquestion,)
+
+pred_results = model.predict(([my_story,my_ques]))
+val_max = np.argmax(pred_results[0])
+
+for key,val in tokenizer.word_index.items():
+    if val == val_max:
+        k = key
